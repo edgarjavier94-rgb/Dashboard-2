@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Servifrontera · Meta Ads · Junio 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#EEF1F7; --panel:#FFFFFF; --line:#E2E6EF; --line-2:#EDF0F6;
+  --ink:#11131A; --ink-2:#565D6D; --ink-3:#8B92A1;
+  --blue:#0866FF; --blue-d:#0550cc; --blue-soft:#E7F0FF;
+  --eb2:#0866FF; --asylum:#0FA9A0; --pet:#F08A1D;
+  --good:#0F9D58; --warn:#E5484D;
+  --radius:14px; --shadow:0 1px 2px rgba(17,19,26,.05),0 6px 24px -12px rgba(17,19,26,.18);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased;
+  padding:22px 20px 64px;
+}
+.wrap{max-width:1180px;margin:0 auto}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+h1,h2,h3{margin:0;font-family:'Space Grotesk',sans-serif;letter-spacing:-.01em}
+
+/* Header */
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px 18px;margin-bottom:18px}
+.brand{display:flex;align-items:center;gap:12px}
+.glyph{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,#0866FF,#3C8CFF);
+  display:grid;place-items:center;color:#fff;font-family:'Space Grotesk';font-weight:700;font-size:19px;
+  box-shadow:0 6px 16px -6px rgba(8,102,255,.6)}
+.brand h1{font-size:19px;font-weight:600;line-height:1.1}
+.brand .sub{color:var(--ink-3);font-size:12px;margin-top:2px;letter-spacing:.01em}
+.period{margin-left:auto;text-align:right}
+.period .lab{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--ink-3);font-weight:600}
+.period .val{font-family:'Space Grotesk';font-weight:600;font-size:15px;margin-top:1px}
+.period .val b{color:var(--blue)}
+
+/* Card shell */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+
+/* Controls */
+.controls{padding:16px 16px 18px;margin-bottom:16px}
+.ctl-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.ctl-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);font-weight:700;margin-right:2px}
+.pills{display:flex;flex-wrap:wrap;gap:7px}
+.pill{appearance:none;border:1px solid var(--line);background:#fff;color:var(--ink-2);
+  font:inherit;font-size:12.5px;font-weight:600;padding:7px 13px;border-radius:999px;cursor:pointer;
+  transition:background .14s,color .14s,border-color .14s}
+.pill:hover{border-color:#C9D2E3;color:var(--ink)}
+.pill.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.pill:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.dates{display:flex;align-items:center;gap:8px;margin-left:auto}
+.dates input[type=date]{font:inherit;font-size:13px;border:1px solid var(--line);border-radius:9px;
+  padding:7px 9px;color:var(--ink);background:#fff;font-variant-numeric:tabular-nums}
+.dates input:focus-visible{outline:2px solid var(--blue);outline-offset:1px;border-color:var(--blue)}
+.dates .arrow{color:var(--ink-3)}
+
+/* Day strip (signature) */
+.strip-wrap{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.strip-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.strip-head .t{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);font-weight:700}
+.strip-head .hint{font-size:11.5px;color:var(--ink-3)}
+.strip{position:relative;display:flex;gap:3px;align-items:flex-end;height:74px;
+  touch-action:none;user-select:none;cursor:crosshair}
+.bar{flex:1;position:relative;display:flex;align-items:flex-end;height:100%}
+.bar .fill{width:100%;background:#C8D3E6;border-radius:4px 4px 2px 2px;min-height:3px;
+  transition:background .12s}
+.bar.sel .fill{background:var(--blue)}
+.bar.edge .fill{background:var(--blue-d)}
+.bar:hover .fill{filter:brightness(.94)}
+.axis{display:flex;justify-content:space-between;margin-top:7px;color:var(--ink-3);font-size:10.5px;
+  font-variant-numeric:tabular-nums}
+.bar .tip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);
+  background:var(--ink);color:#fff;font-size:11px;font-weight:600;white-space:nowrap;
+  padding:5px 8px;border-radius:7px;opacity:0;pointer-events:none;transition:opacity .12s;z-index:5}
+.bar .tip:after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  border:5px solid transparent;border-top-color:var(--ink)}
+.bar:hover .tip{opacity:1}
+
+/* Service chips */
+.svc-row{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 4px}
+.chip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;
+  border-radius:10px;padding:7px 12px 7px 11px;font-size:13px;font-weight:600;color:var(--ink-2);
+  cursor:pointer;transition:border-color .14s,background .14s,color .14s}
+.chip .dot{width:10px;height:10px;border-radius:3px;flex:none}
+.chip.off{opacity:.4;background:#fafbfd}
+.chip:hover{border-color:#C9D2E3}
+.chip:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.chip .cnt{color:var(--ink-3);font-weight:600;font-variant-numeric:tabular-nums;font-size:12px}
+
+/* KPI grid */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
+.kpi{padding:15px 15px 14px}
+.kpi .k-lab{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);font-weight:700}
+.kpi .k-val{font-family:'Space Grotesk';font-weight:600;font-size:26px;line-height:1.1;margin-top:7px;
+  letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.kpi .k-val .u{font-size:15px;color:var(--ink-3);font-weight:600;margin-left:1px}
+.kpi .k-sub{font-size:12px;color:var(--ink-3);margin-top:4px;font-variant-numeric:tabular-nums}
+.kpi.lead .k-val{color:var(--blue)}
+
+/* Layout split */
+.grid2{display:grid;grid-template-columns:1.05fr .95fr;gap:16px;align-items:start}
+
+/* Table */
+.tbl-card{padding:4px 4px 10px;overflow:hidden}
+.tbl-head{display:flex;justify-content:space-between;align-items:center;padding:13px 14px 9px}
+.tbl-head h3{font-size:14px;font-weight:600}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+thead th{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);font-weight:700;
+  text-align:right;padding:8px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+thead th:first-child{text-align:left}
+tbody td{padding:11px 12px;text-align:right;border-bottom:1px solid var(--line-2);font-size:13px;white-space:nowrap}
+tbody td:first-child{text-align:left;font-weight:600}
+tbody tr:last-child td{border-bottom:none}
+tbody tr.tot td{font-weight:700;background:#F8FAFE;border-top:1.5px solid var(--line)}
+.sname{display:inline-flex;align-items:center;gap:8px}
+.sname .dot{width:9px;height:9px;border-radius:3px;flex:none}
+.muted-cell{color:var(--ink-3)}
+
+/* Chart */
+.chart-card{padding:14px 14px 16px}
+.chart-head{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin-bottom:6px}
+.chart-head h3{font-size:14px;font-weight:600}
+.seg{display:inline-flex;background:#F1F4FA;border:1px solid var(--line);border-radius:9px;padding:3px;gap:2px}
+.seg button{appearance:none;border:0;background:transparent;font:inherit;font-size:12px;font-weight:600;
+  color:var(--ink-2);padding:5px 10px;border-radius:6px;cursor:pointer;transition:background .12s,color .12s}
+.seg button.on{background:#fff;color:var(--blue);box-shadow:0 1px 2px rgba(17,19,26,.08)}
+.seg button:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+.chart-box{position:relative;height:280px;margin-top:6px}
+
+/* Notes */
+.notes{margin-top:14px;font-size:12px;color:var(--ink-3);line-height:1.55}
+.notes b{color:var(--ink-2);font-weight:600}
+.foot{margin-top:18px;font-size:11.5px;color:var(--ink-3);text-align:center}
+
+@media (max-width:880px){
+  .grid2{grid-template-columns:1fr}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .dates{margin-left:0;width:100%}
+  .period{margin-left:0;text-align:left;width:100%}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <div class="glyph">S</div>
+      <div>
+        <h1>Servifrontera Latam</h1>
+        <div class="sub">Meta Ads · consolidado por línea de servicio · USD</div>
+      </div>
+    </div>
+    <div class="period">
+      <div class="lab">Rango seleccionado</div>
+      <div class="val"><b id="pRange">1–29 jun</b> · <span id="pDays">29</span> días</div>
+    </div>
+  </header>
+
+  <!-- Controls -->
+  <section class="card controls">
+    <div class="ctl-row">
+      <span class="ctl-label">Fechas</span>
+      <div class="pills" id="presets">
+        <button class="pill" data-s="1" data-e="29">Todo junio</button>
+        <button class="pill" data-s="1" data-e="15">1ª quincena</button>
+        <button class="pill" data-s="16" data-e="29">2ª quincena</button>
+        <button class="pill" data-s="23" data-e="29">Últimos 7 días</button>
+      </div>
+      <div class="dates">
+        <input type="date" id="dStart" min="2026-06-01" max="2026-06-29" value="2026-06-01">
+        <span class="arrow">→</span>
+        <input type="date" id="dEnd" min="2026-06-01" max="2026-06-29" value="2026-06-29">
+      </div>
+    </div>
+
+    <div class="strip-wrap">
+      <div class="strip-head">
+        <span class="t">Inversión diaria — haz click o arrastra para elegir el rango</span>
+        <span class="hint">jun 2026</span>
+      </div>
+      <div class="strip" id="strip"></div>
+      <div class="axis"><span>1</span><span>5</span><span>10</span><span>15</span><span>20</span><span>25</span><span>29</span></div>
+    </div>
+
+    <div class="svc-row" id="svcRow"></div>
+  </section>
+
+  <!-- KPIs -->
+  <section class="kpis" id="kpis"></section>
+
+  <!-- Table + Chart -->
+  <section class="grid2">
+    <div class="card tbl-card">
+      <div class="tbl-head"><h3>Consolidado por servicio</h3><span class="hint" style="font-size:11.5px;color:var(--ink-3)" id="tblRange"></span></div>
+      <table>
+        <thead>
+          <tr>
+            <th>Servicio</th><th>Inversión</th><th>$/día</th><th>Impr.</th>
+            <th>Clicks</th><th>Leads</th><th>CPL</th><th>CTR</th><th>CPC</th>
+          </tr>
+        </thead>
+        <tbody id="tblBody"></tbody>
+      </table>
+    </div>
+
+    <div class="card chart-card">
+      <div class="chart-head">
+        <h3>Tendencia diaria</h3>
+        <div class="seg" id="metricSeg">
+          <button data-m="spend" class="on">Inversión</button>
+          <button data-m="leads">Leads</button>
+          <button data-m="impr">Impr.</button>
+          <button data-m="clicks">Clicks</button>
+        </div>
+      </div>
+      <div class="chart-box"><canvas id="chart"></canvas></div>
+    </div>
+  </section>
+
+  <div class="card controls notes" style="margin-top:16px;padding:14px 16px">
+    <b>Cómo leer estos datos.</b> EB2 agrupa 6 campañas de leads + 2 de retargeting + 3 de awareness (ThruPlay, sin leads), por lo que su CPL, CTR y CPC salen diluidos; la línea de conversión pura (Fase 2) rinde mejor. Los leads de <b>RMKT Tibio</b> no se atribuyen (atribución mixta) y cuentan como 0. El <b>$/día</b> divide la inversión entre los días calendario del rango elegido — Petición Familiar y Asylum Moción se lanzaron a mitad de mes, así que conviene acotar el rango con el selector para verlas en su ventana activa. Totales basados en el desglose diario (pueden variar centavos vs. la vista por defecto de Ads Manager).
+  </div>
+
+  <div class="foot">Servifrontera Latam · cuenta 721104399642099 · datos jun 1–29, 2026 (mes en curso)</div>
+</div>
+
+<script>
+const DATA = {"account":"Servifrontera Latam","currency":"USD","year":2026,"month":6,"services":["EB2","Asylum","Peticion"],"records":[{"svc":"EB2","day":1,"spend":331.51,"impr":13288,"clicks":515,"leads":12},{"svc":"EB2","day":2,"spend":365.87,"impr":19245,"clicks":651,"leads":17},{"svc":"EB2","day":3,"spend":284.21,"impr":14121,"clicks":609,"leads":21},{"svc":"EB2","day":4,"spend":263.81,"impr":13544,"clicks":525,"leads":28},{"svc":"EB2","day":5,"spend":233.22,"impr":13176,"clicks":481,"leads":14},{"svc":"EB2","day":6,"spend":191.0,"impr":10389,"clicks":335,"leads":13},{"svc":"EB2","day":7,"spend":367.49,"impr":18424,"clicks":719,"leads":17},{"svc":"EB2","day":8,"spend":294.69,"impr":17374,"clicks":616,"leads":13},{"svc":"EB2","day":9,"spend":298.58,"impr":20116,"clicks":582,"leads":19},{"svc":"EB2","day":10,"spend":278.88,"impr":16727,"clicks":530,"leads":17},{"svc":"EB2","day":11,"spend":276.61,"impr":15090,"clicks":541,"leads":17},{"svc":"EB2","day":12,"spend":251.34,"impr":15056,"clicks":459,"leads":16},{"svc":"EB2","day":13,"spend":205.71,"impr":13579,"clicks":465,"leads":14},{"svc":"EB2","day":14,"spend":261.54,"impr":17408,"clicks":598,"leads":13},{"svc":"EB2","day":15,"spend":257.57,"impr":14106,"clicks":507,"leads":16},{"svc":"EB2","day":16,"spend":213.72,"impr":10946,"clicks":386,"leads":13},{"svc":"EB2","day":17,"spend":227.52,"impr":11522,"clicks":405,"leads":9},{"svc":"EB2","day":18,"spend":213.91,"impr":11626,"clicks":405,"leads":16},{"svc":"EB2","day":19,"spend":221.04,"impr":11633,"clicks":364,"leads":13},{"svc":"EB2","day":20,"spend":188.28,"impr":9940,"clicks":305,"leads":11},{"svc":"EB2","day":21,"spend":262.71,"impr":14129,"clicks":441,"leads":12},{"svc":"EB2","day":22,"spend":202.94,"impr":9719,"clicks":373,"leads":12},{"svc":"EB2","day":23,"spend":194.34,"impr":9858,"clicks":334,"leads":9},{"svc":"EB2","day":24,"spend":178.82,"impr":8762,"clicks":304,"leads":13},{"svc":"EB2","day":25,"spend":173.09,"impr":9415,"clicks":329,"leads":9},{"svc":"EB2","day":26,"spend":167.01,"impr":8839,"clicks":274,"leads":9},{"svc":"EB2","day":27,"spend":157.49,"impr":8482,"clicks":234,"leads":8},{"svc":"EB2","day":28,"spend":222.01,"impr":12777,"clicks":426,"leads":11},{"svc":"EB2","day":29,"spend":69.3,"impr":3365,"clicks":95,"leads":3},{"svc":"Asylum","day":1,"spend":119.22,"impr":2634,"clicks":114,"leads":15},{"svc":"Asylum","day":2,"spend":106.95,"impr":2369,"clicks":112,"leads":4},{"svc":"Asylum","day":3,"spend":105.66,"impr":2947,"clicks":121,"leads":12},{"svc":"Asylum","day":4,"spend":90.13,"impr":2736,"clicks":118,"leads":6},{"svc":"Asylum","day":5,"spend":88.72,"impr":2490,"clicks":82,"leads":2},{"svc":"Asylum","day":6,"spend":70.99,"impr":1647,"clicks":58,"leads":8},{"svc":"Asylum","day":7,"spend":129.77,"impr":3626,"clicks":128,"leads":4},{"svc":"Asylum","day":8,"spend":105.77,"impr":2835,"clicks":95,"leads":7},{"svc":"Asylum","day":9,"spend":107.53,"impr":2789,"clicks":95,"leads":7},{"svc":"Asylum","day":10,"spend":90.87,"impr":2597,"clicks":116,"leads":7},{"svc":"Asylum","day":11,"spend":90.13,"impr":2593,"clicks":86,"leads":10},{"svc":"Asylum","day":12,"spend":87.17,"impr":2406,"clicks":112,"leads":12},{"svc":"Asylum","day":13,"spend":87.57,"impr":2813,"clicks":119,"leads":8},{"svc":"Asylum","day":14,"spend":207.62,"impr":6380,"clicks":233,"leads":15},{"svc":"Asylum","day":15,"spend":221.19,"impr":6817,"clicks":198,"leads":9},{"svc":"Asylum","day":16,"spend":194.8,"impr":5422,"clicks":172,"leads":8},{"svc":"Asylum","day":17,"spend":194.15,"impr":5314,"clicks":154,"leads":9},{"svc":"Asylum","day":18,"spend":188.4,"impr":5503,"clicks":154,"leads":7},{"svc":"Asylum","day":19,"spend":201.43,"impr":6488,"clicks":175,"leads":11},{"svc":"Asylum","day":20,"spend":197.51,"impr":5637,"clicks":166,"leads":14},{"svc":"Asylum","day":21,"spend":247.75,"impr":7300,"clicks":190,"leads":9},{"svc":"Asylum","day":22,"spend":213.01,"impr":5595,"clicks":161,"leads":12},{"svc":"Asylum","day":23,"spend":206.28,"impr":5831,"clicks":167,"leads":9},{"svc":"Asylum","day":24,"spend":194.06,"impr":5567,"clicks":151,"leads":12},{"svc":"Asylum","day":25,"spend":176.92,"impr":4843,"clicks":140,"leads":11},{"svc":"Asylum","day":26,"spend":188.61,"impr":5535,"clicks":147,"leads":6},{"svc":"Asylum","day":27,"spend":170.58,"impr":5692,"clicks":166,"leads":9},{"svc":"Asylum","day":28,"spend":245.76,"impr":8595,"clicks":245,"leads":14},{"svc":"Asylum","day":29,"spend":84.43,"impr":2421,"clicks":64,"leads":6},{"svc":"Peticion","day":9,"spend":115.64,"impr":4445,"clicks":168,"leads":6},{"svc":"Peticion","day":10,"spend":105.57,"impr":3818,"clicks":141,"leads":8},{"svc":"Peticion","day":11,"spend":73.75,"impr":2972,"clicks":122,"leads":8},{"svc":"Peticion","day":12,"spend":63.7,"impr":2702,"clicks":99,"leads":1},{"svc":"Peticion","day":13,"spend":49.35,"impr":1987,"clicks":74,"leads":6},{"svc":"Peticion","day":14,"spend":57.49,"impr":2558,"clicks":86,"leads":6},{"svc":"Peticion","day":15,"spend":54.33,"impr":2419,"clicks":72,"leads":2},{"svc":"Peticion","day":16,"spend":47.59,"impr":1900,"clicks":47,"leads":3},{"svc":"Peticion","day":17,"spend":46.83,"impr":1818,"clicks":77,"leads":3},{"svc":"Peticion","day":18,"spend":48.12,"impr":1996,"clicks":78,"leads":4},{"svc":"Peticion","day":19,"spend":52.74,"impr":2226,"clicks":97,"leads":1},{"svc":"Peticion","day":20,"spend":41.8,"impr":1753,"clicks":70,"leads":4},{"svc":"Peticion","day":21,"spend":57.06,"impr":2271,"clicks":84,"leads":4},{"svc":"Peticion","day":22,"spend":53.33,"impr":1886,"clicks":55,"leads":2},{"svc":"Peticion","day":23,"spend":52.23,"impr":1986,"clicks":85,"leads":4},{"svc":"Peticion","day":24,"spend":48.31,"impr":1910,"clicks":69,"leads":2},{"svc":"Peticion","day":25,"spend":48.9,"impr":1978,"clicks":57,"leads":3},{"svc":"Peticion","day":26,"spend":46.21,"impr":1880,"clicks":50,"leads":2},{"svc":"Peticion","day":27,"spend":43.23,"impr":1970,"clicks":54,"leads":4},{"svc":"Peticion","day":28,"spend":61.79,"impr":3075,"clicks":104,"leads":6},{"svc":"Peticion","day":29,"spend":21.45,"impr":1014,"clicks":32,"leads":1}]};
+const SVC = {
+  EB2:{label:"EB2", color:getCSS('--eb2')},
+  Asylum:{label:"Asylum", color:getCSS('--asylum')},
+  Peticion:{label:"Petición Familiar", color:getCSS('--pet')}
+};
+function getCSS(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()||"#0866FF";}
+
+const state = { start:1, end:29, services:new Set(["EB2","Asylum","Peticion"]), metric:"spend" };
+
+const MONTH_ABBR="jun";
+const $=s=>document.querySelector(s);
+const fmtInt=n=>Math.round(n).toLocaleString("en-US");
+const fmtMoney=(n,d=2)=>"$"+n.toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtPct=n=>n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})+"%";
+const dayCount=()=>state.end-state.start+1;
+function isoFor(d){return "2026-06-"+String(d).padStart(2,"0");}
+function dayFromIso(v){return parseInt(v.slice(8),10);}
+
+/* ---- aggregation ---- */
+function rowsInRange(){
+  return DATA.records.filter(r=>r.day>=state.start && r.day<=state.end && state.services.has(r.svc));
+}
+function aggregate(rows){
+  const a={spend:0,impr:0,clicks:0,leads:0};
+  rows.forEach(r=>{a.spend+=r.spend;a.impr+=r.impr;a.clicks+=r.clicks;a.leads+=r.leads;});
+  return a;
+}
+function bySvc(){
+  const out={};
+  DATA.services.forEach(s=>out[s]=aggregate(DATA.records.filter(r=>r.day>=state.start&&r.day<=state.end&&r.svc===s)));
+  return out;
+}
+function cpl(a){return a.leads>0? a.spend/a.leads : null;}
+function ctr(a){return a.impr>0? a.clicks/a.impr*100 : 0;}
+function cpc(a){return a.clicks>0? a.spend/a.clicks : 0;}
+
+/* ---- day strip ---- */
+function dailyTotalsAllSvc(){
+  const t={}; for(let d=1;d<=29;d++)t[d]=0;
+  DATA.records.forEach(r=>{ if(state.services.has(r.svc)) t[r.day]+=r.spend; });
+  return t;
+}
+function buildStrip(){
+  const strip=$("#strip"); strip.innerHTML="";
+  const totals=dailyTotalsAllSvc();
+  const max=Math.max(1,...Object.values(totals));
+  for(let d=1;d<=29;d++){
+    const bar=document.createElement("div");
+    bar.className="bar"; bar.dataset.day=d;
+    const h=Math.max(4,Math.round(totals[d]/max*100));
+    bar.innerHTML=`<div class="tip">${MONTH_ABBR} ${d} · ${fmtMoney(totals[d],0)}</div><div class="fill" style="height:${h}%"></div>`;
+    strip.appendChild(bar);
+  }
+  paintStrip();
+  attachStripDrag();
+}
+function paintStrip(){
+  document.querySelectorAll("#strip .bar").forEach(b=>{
+    const d=+b.dataset.day;
+    b.classList.toggle("sel", d>=state.start && d<=state.end);
+    b.classList.toggle("edge", d===state.start || d===state.end);
+  });
+}
+let dragging=false, anchor=null;
+function attachStripDrag(){
+  const strip=$("#strip");
+  const dayAt=(x)=>{
+    const els=[...strip.querySelectorAll(".bar")];
+    for(const el of els){const r=el.getBoundingClientRect(); if(x>=r.left&&x<=r.right)return +el.dataset.day;}
+    const r=strip.getBoundingClientRect();
+    return x<r.left?1:29;
+  };
+  strip.onpointerdown=e=>{
+    e.preventDefault(); dragging=true; anchor=dayAt(e.clientX);
+    state.start=anchor; state.end=anchor; strip.setPointerCapture(e.pointerId);
+    paintStrip(); syncInputs(); renderAll();
+  };
+  strip.onpointermove=e=>{
+    if(!dragging)return;
+    const d=dayAt(e.clientX);
+    state.start=Math.min(anchor,d); state.end=Math.max(anchor,d);
+    paintStrip(); syncInputs(); renderAll();
+  };
+  const up=()=>{dragging=false;};
+  strip.onpointerup=up; strip.onpointercancel=up;
+}
+
+/* ---- services ---- */
+function buildSvcChips(){
+  const row=$("#svcRow"); row.innerHTML="";
+  DATA.services.forEach(s=>{
+    const c=document.createElement("button");
+    c.className="chip"; c.dataset.svc=s; c.type="button";
+    c.innerHTML=`<span class="dot" style="background:${SVC[s].color}"></span>${SVC[s].label}`;
+    c.onclick=()=>{
+      if(state.services.has(s)){ if(state.services.size===1)return; state.services.delete(s); }
+      else state.services.add(s);
+      buildStrip(); renderAll();
+    };
+    row.appendChild(c);
+  });
+  paintChips();
+}
+function paintChips(){
+  document.querySelectorAll("#svcRow .chip").forEach(c=>{
+    c.classList.toggle("off", !state.services.has(c.dataset.svc));
+  });
+}
+
+/* ---- KPIs ---- */
+function renderKPIs(){
+  const a=aggregate(rowsInRange());
+  const days=dayCount();
+  const cards=[
+    {lab:"Inversión", val:fmtMoney(a.spend,2), sub:`en ${days} día${days>1?"s":""}`},
+    {lab:"Gasto diario prom.", val:fmtMoney(a.spend/days,2), sub:"inversión ÷ días"},
+    {lab:"Leads", val:fmtInt(a.leads), sub:"website leads", lead:true},
+    {lab:"CPL", val: cpl(a)!=null? fmtMoney(cpl(a),2):"—", sub:"costo por lead"},
+    {lab:"Impresiones", val:fmtInt(a.impr), sub:""},
+    {lab:"Clicks", val:fmtInt(a.clicks), sub:""},
+    {lab:"CTR", val:fmtPct(ctr(a)), sub:"clicks ÷ impr."},
+    {lab:"CPC", val:fmtMoney(cpc(a),2), sub:"costo por click"},
+  ];
+  $("#kpis").innerHTML=cards.map(c=>`
+    <div class="card kpi ${c.lead?"lead":""}">
+      <div class="k-lab">${c.lab}</div>
+      <div class="k-val">${c.val}</div>
+      <div class="k-sub">${c.sub||"&nbsp;"}</div>
+    </div>`).join("");
+}
+
+/* ---- table ---- */
+function renderTable(){
+  const days=dayCount(), per=bySvc(), body=$("#tblBody");
+  let html="";
+  DATA.services.filter(s=>state.services.has(s)).forEach(s=>{
+    const a=per[s];
+    html+=`<tr>
+      <td><span class="sname"><span class="dot" style="background:${SVC[s].color}"></span>${SVC[s].label}</span></td>
+      <td>${fmtMoney(a.spend,2)}</td>
+      <td>${fmtMoney(a.spend/days,2)}</td>
+      <td>${fmtInt(a.impr)}</td>
+      <td>${fmtInt(a.clicks)}</td>
+      <td>${fmtInt(a.leads)}</td>
+      <td>${cpl(a)!=null?fmtMoney(cpl(a),2):'<span class="muted-cell">—</span>'}</td>
+      <td>${fmtPct(ctr(a))}</td>
+      <td>${fmtMoney(cpc(a),2)}</td>
+    </tr>`;
+  });
+  const t=aggregate(rowsInRange());
+  html+=`<tr class="tot">
+    <td>Total</td>
+    <td>${fmtMoney(t.spend,2)}</td>
+    <td>${fmtMoney(t.spend/days,2)}</td>
+    <td>${fmtInt(t.impr)}</td>
+    <td>${fmtInt(t.clicks)}</td>
+    <td>${fmtInt(t.leads)}</td>
+    <td>${cpl(t)!=null?fmtMoney(cpl(t),2):'—'}</td>
+    <td>${fmtPct(ctr(t))}</td>
+    <td>${fmtMoney(cpc(t),2)}</td>
+  </tr>`;
+  body.innerHTML=html;
+  $("#tblRange").textContent=`${MONTH_ABBR} ${state.start}–${state.end}`;
+}
+
+/* ---- chart ---- */
+let chart=null;
+const METRIC_LABEL={spend:"Inversión (USD)",leads:"Leads",impr:"Impresiones",clicks:"Clicks"};
+function renderChart(){
+  const labels=[]; for(let d=state.start;d<=state.end;d++)labels.push(d);
+  const ds=DATA.services.filter(s=>state.services.has(s)).map(s=>({
+    label:SVC[s].label,
+    backgroundColor:SVC[s].color,
+    borderRadius:3, borderSkipped:false,
+    data:labels.map(d=>{
+      const r=DATA.records.find(x=>x.day===d&&x.svc===s);
+      return r? r[state.metric] : 0;
+    })
+  }));
+  const cfg={
+    type:"bar",
+    data:{labels:labels.map(d=>MONTH_ABBR+" "+d),datasets:ds},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      animation:{duration:250},
+      interaction:{mode:"index",intersect:false},
+      scales:{
+        x:{stacked:true,grid:{display:false},ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:10,
+          color:"#8B92A1",font:{size:10}}},
+        y:{stacked:true,grid:{color:"#EDF0F6"},border:{display:false},
+          ticks:{color:"#8B92A1",font:{size:10},
+            callback:v=>state.metric==="spend"?"$"+v:v.toLocaleString("en-US")}}
+      },
+      plugins:{
+        legend:{display:true,position:"bottom",labels:{boxWidth:10,boxHeight:10,usePointStyle:true,
+          pointStyle:"rectRounded",color:"#565D6D",font:{size:11,weight:"500"},padding:14}},
+        tooltip:{callbacks:{label:c=>{
+          const v=c.raw; const f=state.metric==="spend"?fmtMoney(v,2):fmtInt(v);
+          return ` ${c.dataset.label}: ${f}`;
+        }}}
+      }
+    }
+  };
+  if(chart){chart.data=cfg.data;chart.options=cfg.options;chart.update();}
+  else chart=new Chart($("#chart"),cfg);
+}
+
+/* ---- presets / inputs ---- */
+function paintPresets(){
+  document.querySelectorAll("#presets .pill").forEach(p=>{
+    p.classList.toggle("on", +p.dataset.s===state.start && +p.dataset.e===state.end);
+  });
+}
+function syncInputs(){
+  $("#dStart").value=isoFor(state.start);
+  $("#dEnd").value=isoFor(state.end);
+  $("#pRange").textContent=`${state.start}–${state.end} ${MONTH_ABBR}`;
+  $("#pDays").textContent=dayCount();
+  paintPresets();
+}
+
+/* ---- master render ---- */
+function renderAll(){
+  syncInputs(); paintChips(); renderKPIs(); renderTable(); renderChart();
+}
+
+/* ---- events ---- */
+$("#presets").addEventListener("click",e=>{
+  const b=e.target.closest(".pill"); if(!b)return;
+  state.start=+b.dataset.s; state.end=+b.dataset.e; paintStrip(); renderAll();
+});
+$("#dStart").addEventListener("change",e=>{
+  let d=dayFromIso(e.target.value); d=Math.max(1,Math.min(29,d));
+  state.start=d; if(state.end<d)state.end=d; paintStrip(); renderAll();
+});
+$("#dEnd").addEventListener("change",e=>{
+  let d=dayFromIso(e.target.value); d=Math.max(1,Math.min(29,d));
+  state.end=d; if(state.start>d)state.start=d; paintStrip(); renderAll();
+});
+$("#metricSeg").addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b)return;
+  state.metric=b.dataset.m;
+  document.querySelectorAll("#metricSeg button").forEach(x=>x.classList.toggle("on",x===b));
+  renderChart();
+});
+
+/* ---- init ---- */
+buildSvcChips();
+buildStrip();
+renderAll();
+</script>
+</body>
+</html>
